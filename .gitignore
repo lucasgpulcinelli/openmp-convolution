@@ -1,4 +1,5 @@
 .*
 !.gitignore
+!.clang-format
 build
 __pycache__/
