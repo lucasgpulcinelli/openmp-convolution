@@ -26,13 +26,18 @@ int main(int argc, char **argv) {
     p = atoi(argv[2]);
   }
 
-  int n = 50000;
+  int n;
+  int read = scanf("%d", &n);
+  if (read != 1) {
+    return -1;
+  }
 
   uint64_t sum = 0;
 
   double start = omp_get_wtime();
 
-  #pragma omp parallel for num_threads(p) schedule(dynamic) shared(n) reduction(+ : sum)
+#pragma omp parallel for num_threads(p) schedule(dynamic) shared(n)            \
+    reduction(+ : sum)
   for (int i = 1; i < n; i++) {
     if (is_perfect_number(i)) {
       sum += i;

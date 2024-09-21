@@ -7,8 +7,9 @@ ZIPFILE    ?= ../zipfile.zip
 CFILES = $(shell find src/ -type f |grep '\.omp.c')
 OFILES = $(patsubst src/%.omp.c,build/obj/%.o, $(CFILES))
 
-TEST_REPETITIONS ?= 5
-TEST_MAX_THREADS ?= 16
+GRAPH_REPETITIONS ?= 5
+GRAPH_MAX_THREADS ?= 16
+GRAPH_INPUT ?= 5000
 
 .PHONY: all clean run debug graph
 
@@ -25,7 +26,7 @@ debug: clean
 debug: $(EXECUTABLE)
 
 graph: $(EXECUTABLE)
-	@python ./scripts/make_run_graph.py ./$(EXECUTABLE) $(TEST_REPETITIONS) $(TEST_MAX_THREADS) $(INPUT)
+	@python ./scripts/make_run_graph.py ./$(EXECUTABLE) $(GRAPH_REPETITIONS) $(GRAPH_MAX_THREADS) $(GRAPH_INPUT)
 
 $(EXECUTABLE): $(OFILES)
 	@mkdir -p build
