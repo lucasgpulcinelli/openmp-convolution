@@ -1,26 +1,21 @@
-CFLAGS  += -Wall -Wextra -Wpedantic -fopenmp
+CFLAGS  += -Wall -Wextra -Wpedantic -fopenmp -O3
 LDFLAGS += -fopenmp
 
-ZIPFILE    ?= ../zipfile.zip
-
-GRAPH_REPETITIONS ?= 5
+GRAPH_REPETITIONS ?= 1
 GRAPH_MAX_THREADS ?= 16
-GRAPH_INPUT ?= 5000
+GRAPH_INPUT ?= "5000 21 289"
 GRAPH_RELATIVE ?= false
 
-.PHONY: all clean run debug graph
+.PHONY: all clean debug graph
 
-all: ./build/main
+all: ./build/main ./build/main_seq
 
 clean:
 	@rm -rf build/
 
-run: ./build/main
-	@./build/main $(ARGS)
-
 debug: CFLAGS+=-g3 -O0
 debug: clean
-debug: ./build/main
+debug: ./build/main ./build/main_seq
 
 graph: ./build/main ./build/main_seq
 	@python ./scripts/make_run_graph.py ./build/main ./build/main_seq $(GRAPH_RELATIVE) $(GRAPH_REPETITIONS) $(GRAPH_MAX_THREADS) $(GRAPH_INPUT)
