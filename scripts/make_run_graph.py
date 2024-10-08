@@ -6,18 +6,33 @@ import subprocess
 
 sns.set_style("darkgrid")
 
-if len(sys.argv) != 5:
-    print(f"usage: {sys.argv[0]} executable repetitions max_threads input")
+if len(sys.argv) != 7:
+    print(
+        f"usage: {sys.argv[0]} executable executable_seq relative repetitions max_threads input"
+    )
     sys.exit(0)
 
 executable = sys.argv[1]
-repetitions = int(sys.argv[2])
-max_threads = int(sys.argv[3])
-code_input = sys.argv[4]
+executable_seq = sys.argv[2]
+relative = sys.argv[3] == "true"
+repetitions = int(sys.argv[4])
+max_threads = int(sys.argv[5])
+code_input = sys.argv[6]
 
 execution_times = np.zeros((repetitions, max_threads))
 
+seq_times = []
+
 for i in range(repetitions):
+    if not relative:
+        print(f"executing time {i+1} with sequential baseline")
+        p = subprocess.run(
+            [executable, "true", "1"],
+            input=code_input,
+            capture_output=True,
+            text=True,
+        )
+        seq_times.append(float(p.stdout.split("\n")[0]))
     for j in range(max_threads):
         print(f"executing time {i+1} with {j+1} processors")
         p = subprocess.run(
@@ -32,7 +47,10 @@ for i in range(repetitions):
 
 x = np.arange(1, max_threads + 1)
 
-speedup = np.average(execution_times[:, 0]) / execution_times
+speedup = (
+    np.average(execution_times[:, 0]) if relative else sum(seq_times) / len(seq_times)
+)
+speedup /= execution_times
 
 std = np.std(speedup, axis=0)
 avg = np.average(speedup, axis=0)

@@ -1,45 +1,39 @@
 CFLAGS  += -Wall -Wextra -Wpedantic -fopenmp
 LDFLAGS += -fopenmp
 
-EXECUTABLE ?= build/main
 ZIPFILE    ?= ../zipfile.zip
-
-CFILES = $(shell find src/ -type f |grep '\.omp.c')
-OFILES = $(patsubst src/%.omp.c,build/obj/%.o, $(CFILES))
 
 GRAPH_REPETITIONS ?= 5
 GRAPH_MAX_THREADS ?= 16
 GRAPH_INPUT ?= 5000
+GRAPH_RELATIVE ?= false
 
 .PHONY: all clean run debug graph
 
-all: $(EXECUTABLE)
+all: ./build/main
 
 clean:
 	@rm -rf build/
 
-run: $(EXECUTABLE)
-	@./$(EXECUTABLE) $(ARGS)
+run: ./build/main
+	@./build/main $(ARGS)
 
 debug: CFLAGS+=-g3 -O0
 debug: clean
-debug: $(EXECUTABLE)
+debug: ./build/main
 
-graph: $(EXECUTABLE)
-	@python ./scripts/make_run_graph.py ./$(EXECUTABLE) $(GRAPH_REPETITIONS) $(GRAPH_MAX_THREADS) $(GRAPH_INPUT)
+graph: ./build/main ./build/main_seq
+	@python ./scripts/make_run_graph.py ./build/main ./build/main_seq $(GRAPH_RELATIVE) $(GRAPH_REPETITIONS) $(GRAPH_MAX_THREADS) $(GRAPH_INPUT)
 
-$(EXECUTABLE): $(OFILES)
+./build/main: ./build/obj/main.o
 	@mkdir -p build
 	$(CC) $(LDFLAGS) -o $@ $^
 
-build/obj/%.o: src/%.omp.c src/%.h
+./build/main_seq: ./build/obj/main_seq.o
+	@mkdir -p build
+	$(CC) $(LDFLAGS) -o $@ $^
+
+./build/obj/%.o: ./src/%.omp.c
 	@mkdir -p build
 	@mkdir -p build/obj
 	$(CC) $(CFLAGS) -c -o $@ $<
-
-build/obj/%.o: src/%.omp.c
-	@mkdir -p build
-	@mkdir -p build/obj
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-
