@@ -56,11 +56,13 @@ int main(int argc, char **argv) {
       bool overflowed = false;
 
       for (uint64_t k = 0; k < m; k++) {
-#pragma omp simd reduction(+ : sum) reduction(| : overflowed)
         for (uint64_t l = 0; l < m; l++) {
           sum +=
               A[(i - m / 2 + k) * (n + m / 2) + (j - m / 2 + l)] * B[k * m + l];
           overflowed |= (sum > 2550);
+        }
+        if (overflowed) {
+          break;
         }
       }
 

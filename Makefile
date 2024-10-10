@@ -1,4 +1,4 @@
-CFLAGS  += -Wall -Wextra -Wpedantic -fopenmp -O3
+CFLAGS  += -Wall -Wextra -Wpedantic -fopenmp
 LDFLAGS += -fopenmp
 
 GRAPH_REPETITIONS ?= 1
